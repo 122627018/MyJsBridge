@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+
+</head>
+
+<body>
+
+<h1 id="content" onclick="demo();">麻痹</h1>
+<button onclick="demo();" text="asd"></button>
+
+
+
+   
+</body>
+
+
+<script type="text/javascript">
+ function connectWebViewJavascriptBridge(callback) {
+            if (window.WebViewJavascriptBridge) {
+                callback(WebViewJavascriptBridge)
+            } else {
+                document.addEventListener(
+                    'WebViewJavascriptBridgeReady'
+                    , function() {
+                        callback(WebViewJavascriptBridge)
+                    },
+                    false
+                );
+            }
+        }
+
+connectWebViewJavascriptBridge(function(bridge) {
+        bridge.init(function(message, responseCallback) {
+            var data =
+            {
+                	"title":"我是标题",
+	                "right":{
+		                "icon":"R.mipmap.ic_launcher",
+		                "description":"描述",
+		                "callback":"onRightBtnClick"
+	                }
+            };
+            responseCallback(data);
+        });
+        bridge.registerHandler("onRightBtnClick", function(data, responseCallback) {
+            document.getElementById("content").innerHTML = "js中知道toolbar的右键被点击了";
+        });
+
+         bridge.registerHandler("demo", function(data, responseCallback) {
+            var result = eval("("+data+")");
+            if(result.refresh)
+            {
+                document.getElementById("content").innerHTML = "要刷新拉";
+            }else{
+                 document.getElementById("content").innerHTML = "不需要刷新";
+            }
+
+        });
+    });
+
+
+
+    function demo(){
+        var datas = {
+	        "type_tag":"h5",
+	        "page":"file:///android_asset/second2.html",
+	        "data":"",
+	        "isReturn":"false",
+	        "callback":"demo"
+        };
+       window.WebViewJavascriptBridge.callHandler(
+            'forward'
+            , datas
+            , function(responseData) {
+
+            }
+        );
+    }
+
+
+</script>
+</html>

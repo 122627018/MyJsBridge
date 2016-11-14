@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+</head>
+<body>
+<h1 id="content" onclick="demo();">麻痹</h1>
+<button onclick="getUser();" text="asd">跳转到第三个U额面</button>
+<button onclick="showSomeAlert();" text="asd">弹出dialog</button>
+<button onclick="showLoading('我是标题','我i是内筒');" text="asd">测试json弹出loading</button>
+<button onclick="showSomeAlert();" text="asd">测试json弹出AlertDialog</button>
+</body>
+<script type="text/javascript" src="js/JsBridge.js"></script>
+<script type="text/javascript">
+registerBridge(MyInit,register);
+function MyInit(message, responseCallback) {
+
+                 if(message!=null){
+                document.getElementById("content").innerHTML = "这是上一个activity带过来的数据："+message;
+            }else{
+                document.getElementById("content").innerHTML = "上一个actitivyt没有带数据过来";
+            }
+
+            var data =
+            {
+                	"title":"我是第二个activity",
+	                "right":{
+		                "icon":"R.mipmap.ic_launcher",
+		                "description":"描述",
+		                "callback":"onRightBtnClick"
+	                }
+            };
+            loadComplete();
+            responseCallback(data);
+
+        }
+
+function register(bridge){
+    bridge.registerHandler("onRightBtnClick", function(data, responseCallback) {
+            document.getElementById("content").innerHTML = "js中知道toolbar的右键被点击了";
+        });
+
+         bridge.registerHandler("actBack", function(data, responseCallback) {
+            var result = eval("("+data+")");
+            document.getElementById("content").innerHTML = "从第三个页面返回的结果："+result.name;
+        });
+
+         bridge.registerHandler("onNima", function(data, responseCallback) {
+            getUser();
+        });
+
+         bridge.registerHandler("onAlertCallback", function(data, responseCallback) {
+           document.getElementById("content").innerHTML = "alert被你点击确定了";
+        });
+}
+
+
+
+
+
+    function getUser(){
+         window.WebViewJavascriptBridge.callHandler('getUser', ""
+         , function(responseData) {
+            toPage("h5","file:///android_asset/third.html",responseData,"true","actBack");
+         });
+    }
+
+     function showSomeAlert(){
+        showSimpleDialog("js标题","确定要跳转到第三个页面吗","onNima");
+
+    }
+
+    function MyAlert(){
+        showAlert("我是alert标题","我是alert内容","确定","取消","onAlertCallback","s");
+    }
+
+</script>
+</html>

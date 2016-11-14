@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+</head>
+
+<body>
+
+<h1 id="content" onclick="demo();">麻痹</h1>
+<button onclick="onBtnClick();" text="asd"></button>
+
+
+   
+</body>
+
+
+<script type="text/javascript">
+var msg;
+ function connectWebViewJavascriptBridge(callback) {
+            if (window.WebViewJavascriptBridge) {
+                callback(WebViewJavascriptBridge)
+            } else {
+                document.addEventListener(
+                    'WebViewJavascriptBridgeReady'
+                    , function() {
+                        callback(WebViewJavascriptBridge)
+                    },
+                    false
+                );
+            }
+        }
+
+connectWebViewJavascriptBridge(function(bridge) {
+        bridge.init(function(message, responseCallback) {
+            if(message!=null){
+                //此时messgae是字符串，不是object
+                msg = message;
+                document.getElementById("content").innerHTML = "这是上一个activity带过来的数据："+msg;
+            }else{
+                document.getElementById("content").innerHTML = "上一个actitivyt没有带数据过来";
+            }
+
+
+        });
+        bridge.registerHandler("onRightBtnClick", function(data, responseCallback) {
+            document.getElementById("content").innerHTML = "js中知道toolbar的右键被点击了";
+        });
+
+         bridge.registerHandler("demo", function(data, responseCallback) {
+            var result = eval("("+data+")");
+            if(result.refresh)
+            {
+                document.getElementById("content").innerHTML = "要刷新拉";
+            }else{
+                 document.getElementById("content").innerHTML = "不需要刷新";
+            }
+
+        });
+    });
+
+    function onBtnClick(){
+    //JSON.stringify
+    //var result = eval("("+data+")");
+    var result = eval("("+msg+")");
+    result.name = "我是被修改了的王浩明";
+        var datas = 'isReturn=true&data='+JSON.stringify(result);
+       window.WebViewJavascriptBridge.callHandler(
+            'finish'
+            , datas
+            , null
+        );
+    }
+
+
+</script>
+</html>

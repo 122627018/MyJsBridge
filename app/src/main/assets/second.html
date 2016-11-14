@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+
+</head>
+
+<body>
+
+<h1 id="content" onclick="demo();">麻痹</h1>
+<button onclick="onBtnClick();" text="asd">跳转到第三个U额面</button>
+<button onclick="showAlert();" text="asd">弹出dialog</button>
+
+<button onclick="MyLoading();" text="asd">测试json弹出loading</button>
+<button onclick="MyAlert();" text="asd">测试json弹出AlertDialog</button>
+
+   
+</body>
+
+
+<script type="text/javascript">
+ function connectWebViewJavascriptBridge(callback) {
+            if (window.WebViewJavascriptBridge) {
+                callback(WebViewJavascriptBridge)
+            } else {
+                document.addEventListener(
+                    'WebViewJavascriptBridgeReady'
+                    , function() {
+                        callback(WebViewJavascriptBridge)
+                    },
+                    false
+                );
+            }
+        }
+
+    connectWebViewJavascriptBridge(function(bridge) {
+        bridge.init(demo);
+        bridge.registerHandler("onRightBtnClick", function(data, responseCallback) {
+            document.getElementById("content").innerHTML = "js中知道toolbar的右键被点击了";
+        });
+
+         bridge.registerHandler("actBack", function(data, responseCallback) {
+            var result = eval("("+data+")");
+            document.getElementById("content").innerHTML = "从第三个页面返回的结果："+result.name;
+        });
+
+         bridge.registerHandler("onNima", function(data, responseCallback) {
+            onBtnClick();
+        });
+
+         bridge.registerHandler("onAlertCallback", function(data, responseCallback) {
+           document.getElementById("content").innerHTML = "alert被你点击确定了";
+        });
+    });
+
+     function demo(message, responseCallback) {
+            if(message!=null){
+                document.getElementById("content").innerHTML = "这是上一个activity带过来的数据："+message;
+            }else{
+                document.getElementById("content").innerHTML = "上一个actitivyt没有带数据过来";
+            }
+
+            var data =
+            {
+                	"title":"我是第二个activity",
+	                "right":{
+		                "icon":"R.mipmap.ic_launcher",
+		                "description":"描述",
+		                "callback":"onRightBtnClick"
+	                }
+            };
+            loadComplete();
+            responseCallback(data);
+        }
+
+    function getUser(callback){
+         window.WebViewJavascriptBridge.callHandler('getUser', "", function(responseData) {callback(responseData);});
+    }
+
+
+
+    function onBtnClick(){
+        getUser(toThird);
+    }
+
+    function toThird(pars){
+        var datas = {
+	        "type_tag":"h5",
+	        "page":"file:///android_asset/third.html",
+	        "data":pars,
+	        "isReturn":"true",
+	        "callback":"actBack"
+        };
+         window.WebViewJavascriptBridge.callHandler(
+            'forward'
+            , datas
+            , function(responseData) {}
+        );
+    }
+
+    function loadComplete(){
+        window.WebViewJavascriptBridge.callHandler('loadComplete', "", null);
+    }
+    setTimeout(loadComplete,"2000");
+
+     function showAlert(){
+        var data = 'title=js标题&content=确定要跳转到第三个页面吗?&okCallback=onNima';
+        window.WebViewJavascriptBridge.callHandler('alertDialog', data, null);
+    }
+
+    function MyLoading(){
+        var data =
+        {
+	        "type":"loading",
+	         "title":"我是标题",
+	        "content":"我是内容"
+        };
+        window.WebViewJavascriptBridge.callHandler('dialog', data, null);
+    }
+
+    function MyAlert(){
+        var data =
+        {
+	        "type":"alert",
+	        "title":"我是alert标题",
+	        "content":"我是alert内容",
+	        "okMsg":"确定",
+            "cancelMsg":"取消",
+            "okCallback":"onAlertCallback",
+            "cancelCallback":""
+        };
+        window.WebViewJavascriptBridge.callHandler('dialog', data, null);
+    }
+
+</script>
+</html>
